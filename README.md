@@ -1,6 +1,7 @@
 # Serverless Build Client
 
 [![CircleCI](https://circleci.com/gh/tgfischer/serverless-build-client/tree/master.svg?style=svg)](https://circleci.com/gh/tgfischer/serverless-build-client/tree/master)
+[![GitHub license](https://img.shields.io/github/license/tgfischer/serverless-build-client.svg)](https://github.com/tgfischer/serverless-build-client/blob/master/LICENSE)
 
 A Serverless Framework plugin for building the frontend with environment variables defined in `serverless.yml`
 
