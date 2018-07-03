@@ -24,7 +24,9 @@ class ServerlessBuildClientPlugin {
     const environment = this.serverless.service.provider.environment;
 
     if (!environment) {
-      return;
+      return this.serverless.cli.log(
+        "No environment variables detected. Skipping step..."
+      );
     }
 
     Object.keys(environment).forEach(variable => {
@@ -37,25 +39,24 @@ class ServerlessBuildClientPlugin {
 
   buildClient() {
     this.serverless.cli.log("Building the client");
-
-    return new Promise((resolve, reject) => {
-      const build = spawn("yarn", ["build"]);
-      let err;
-
-      build.stdout.on("data", data =>
-        this.serverless.cli.log(data.toString().trim())
-      );
-      build.stderr.on("data", data => {
-        err = new this.serverless.classes.Error(data.toString().trim());
-      });
-      build.on("close", code => {
-        return code === 0 ? resolve() : reject(err);
-      });
-    });
+    return new Promise(this._buildClient.bind(this));
   }
 
   afterBuildClient() {
     this.serverless.cli.log("Successfully built the client");
+  }
+
+  _buildClient(resolve, reject) {
+    const build = spawn("yarn", ["build"]);
+    let err;
+
+    build.stdout.on("data", data =>
+      this.serverless.cli.log(data.toString().trim())
+    );
+    build.stderr.on("data", data => {
+      err = new this.serverless.classes.Error(data.toString().trim());
+    });
+    build.on("close", code => (code === 0 ? resolve() : reject(err)));
   }
 }
 

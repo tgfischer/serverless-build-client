@@ -1,12 +1,13 @@
 {
-  "extends": ["plugin:prettier/recommended"],
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
   "plugins": ["prettier"],
   "parserOptions": {
     "sourceType": "module"
   },
   "env": {
     "es6": true,
-    "node": true
+    "node": true,
+    "jest": true
   },
   "rules": {
     "no-undef": "error",
