@@ -27,9 +27,12 @@ class ServerlessPlugin {
       return;
     }
 
-    Object.keys(environment).forEach(
-      variable => (process.env[variable] = environment[variable])
-    );
+    Object.keys(environment).forEach(variable => {
+      this.serverless.cli.log(
+        `Setting ${variable} to ${environment[variable]}`
+      );
+      process.env[variable] = environment[variable];
+    });
   }
 
   buildClient() {
