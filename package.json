@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "A Serverless Framework plugin used to build front end applications",
   "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tgfischer/serverless-build-client.git"
+  },
   "scripts": {
     "test": "jest",
     "lint": "npx eslint --fix -- ."
