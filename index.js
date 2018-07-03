@@ -1,6 +1,6 @@
-const shell = require("shelljs");
+const { spawn } = require("child_process");
 
-class ServerlessPlugin {
+class ServerlessBuildClientPlugin {
   constructor(serverless, options) {
     this.serverless = serverless;
     this.options = options;
@@ -20,7 +20,7 @@ class ServerlessPlugin {
   }
 
   beforeBuildClient() {
-    this.serverless.cli.log("Building the client");
+    this.serverless.cli.log("Setting the environment variables");
     const environment = this.serverless.service.provider.environment;
 
     if (!environment) {
@@ -36,12 +36,21 @@ class ServerlessPlugin {
   }
 
   buildClient() {
+    this.serverless.cli.log("Building the client");
+
     return new Promise((resolve, reject) => {
-      const result = shell.exec("yarn build");
-      if (result.code !== 0) {
-        return reject(new this.serverless.classes.Error(result.stderr));
-      }
-      resolve();
+      const build = spawn("yarn", ["build"]);
+      let err;
+
+      build.stdout.on("data", data =>
+        this.serverless.cli.log(data.toString().trim())
+      );
+      build.stderr.on("data", data => {
+        err = new this.serverless.classes.Error(data.toString().trim());
+      });
+      build.on("close", code => {
+        return code === 0 ? resolve() : reject(err);
+      });
     });
   }
 
@@ -50,4 +59,4 @@ class ServerlessPlugin {
   }
 }
 
-module.exports = ServerlessPlugin;
+module.exports = ServerlessBuildClientPlugin;
