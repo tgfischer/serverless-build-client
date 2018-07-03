@@ -6,7 +6,7 @@ A Serverless Framework plugin for building the frontend with environment variabl
 
 ## Introduction
 
-Plugins such as `serverless-finch` make it easy to host static websites in S3. These websites need to be built before being uploaded. Without this plugin, environment variables defined in `serverless.yml` will not be included in the build.
+Plugins such as [`serverless-finch`](https://github.com/fernando-mc/serverless-finch) make it easy to host static websites in S3. These websites need to be built before being uploaded. Without this plugin, environment variables defined in `serverless.yml` will not be included in the build.
 
 ## Installation
 
@@ -54,7 +54,7 @@ provider:
 ...
 ```
 
-To deploy your front end, you need to run a series of commands (in this example, I am using `serverless-finch`)
+To deploy your front end, you need to run a series of commands (in this example, I am using [`serverless-finch`](https://github.com/fernando-mc/serverless-finch))
 
 ```
 serverless deploy
