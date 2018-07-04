@@ -9,11 +9,13 @@
   },
   "scripts": {
     "test": "jest",
+    "coverage": "jest --coverage && cat ./coverage/lcov.info | npx coveralls",
     "lint": "npx eslint --fix -- ."
   },
   "author": "Tom Fischer",
   "license": "MIT",
   "devDependencies": {
+    "coveralls": "^3.0.2",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.6.0",
