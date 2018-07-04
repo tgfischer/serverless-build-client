@@ -61,7 +61,7 @@ To deploy your front end, you need to run a series of commands (in this example,
 
 ```
 serverless deploy
-serverless build client
+serverless build
 serverless client deploy --no-confirm
 ```
 
