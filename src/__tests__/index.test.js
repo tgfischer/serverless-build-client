@@ -1,4 +1,4 @@
-const ServerlessBuildClientPlugin = require("../index");
+const ServerlessClientBuildPlugin = require("../index");
 const childProcess = require("child_process");
 
 jest.mock("child_process", () => ({
@@ -13,7 +13,7 @@ jest.mock("child_process", () => ({
   }))
 }));
 
-describe("ServerlessBuildClientPlugin tests", () => {
+describe("ServerlessClientBuildPlugin tests", () => {
   const env = process.env;
   const options = {
     foo: "bar"
@@ -30,20 +30,26 @@ describe("ServerlessBuildClientPlugin tests", () => {
         log: jest.fn()
       }
     };
-    const plugin = new ServerlessBuildClientPlugin(serverless, options);
+    const plugin = new ServerlessClientBuildPlugin(serverless, options);
 
     expect(plugin.serverless).toEqual(serverless);
     expect(plugin.options).toEqual(options);
     expect(plugin.commands).toEqual({
-      build: {
+      client: {
         usage: "A plugin used to build front end applications",
-        lifecycleEvents: ["client"]
+        lifecycleEvents: ["build"],
+        commands: {
+          build: {
+            usage: "Build the client",
+            lifecycleEvents: ["build"]
+          }
+        }
       }
     });
     expect(plugin.hooks).toEqual({
-      "before:build:client": expect.any(Function),
-      "build:client": expect.any(Function),
-      "after:build:client": expect.any(Function)
+      "before:client:build:build": expect.any(Function),
+      "client:build:build": expect.any(Function),
+      "after:client:build:build": expect.any(Function)
     });
   });
 
@@ -53,13 +59,13 @@ describe("ServerlessBuildClientPlugin tests", () => {
         log: jest.fn()
       }
     };
-    const plugin = new ServerlessBuildClientPlugin(serverless, options);
-    plugin.afterBuildClient();
+    const plugin = new ServerlessClientBuildPlugin(serverless, options);
+    plugin.afterClientBuild();
 
     expect(plugin.serverless.cli.log("Successfully built the client"));
   });
 
-  describe("beforeBuildClient tests", () => {
+  describe("beforeClientBuild tests", () => {
     it("should skip processing environment variables", () => {
       const serverless = {
         cli: {
@@ -69,8 +75,8 @@ describe("ServerlessBuildClientPlugin tests", () => {
           provider: {}
         }
       };
-      const plugin = new ServerlessBuildClientPlugin(serverless, options);
-      plugin.beforeBuildClient();
+      const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin.beforeClientBuild();
 
       expect(plugin.serverless.cli.log).toHaveBeenCalledWith(
         "No environment variables detected. Skipping step..."
@@ -104,8 +110,8 @@ describe("ServerlessBuildClientPlugin tests", () => {
           }
         }
       };
-      const plugin = new ServerlessBuildClientPlugin(serverless, options);
-      plugin.beforeBuildClient();
+      const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin.beforeClientBuild();
 
       expect(plugin.serverless.cli.log.mock.calls).toEqual(
         [["Setting the environment variables"]].concat(
@@ -118,7 +124,7 @@ describe("ServerlessBuildClientPlugin tests", () => {
     });
   });
 
-  describe("buildClient tests", () => {
+  describe("clientBuild tests", () => {
     const resolve = jest.fn();
     const reject = jest.fn();
     const stdout = jest.fn((event, f) => f("some stdout"));
@@ -137,8 +143,8 @@ describe("ServerlessBuildClientPlugin tests", () => {
     });
 
     it("should start to build the client", () => {
-      const plugin = new ServerlessBuildClientPlugin(serverless, options);
-      plugin.buildClient();
+      const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin.clientBuild();
 
       expect(plugin.serverless.cli.log).toHaveBeenCalledWith(
         "Building the client"
@@ -157,8 +163,8 @@ describe("ServerlessBuildClientPlugin tests", () => {
         on
       }));
 
-      const plugin = new ServerlessBuildClientPlugin(serverless, options);
-      plugin._buildClient(resolve, reject);
+      const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin._clientBuild(resolve, reject);
 
       expect(serverless.cli.log).toHaveBeenCalledWith("some stdout");
       expect(serverless.classes.Error).toHaveBeenCalledWith("some stderr");
@@ -182,8 +188,8 @@ describe("ServerlessBuildClientPlugin tests", () => {
         on
       }));
 
-      const plugin = new ServerlessBuildClientPlugin(serverless, options);
-      plugin._buildClient(resolve, reject);
+      const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin._clientBuild(resolve, reject);
 
       expect(serverless.cli.log).toHaveBeenCalledWith("some stdout");
       expect(serverless.classes.Error).toHaveBeenCalledWith("some stderr");

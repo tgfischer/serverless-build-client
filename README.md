@@ -35,7 +35,7 @@ plugins:
 In your command prompt, run the following command to build the client
 
 ```
-serverless build
+serverless client build
 ```
 
 This will add all of the environment variables in your `serverless.yml` file to `process.env`, and then it will execute `yarn build` to build the frontend
@@ -61,7 +61,7 @@ To deploy your front end, you need to run a series of commands (in this example,
 
 ```
 serverless deploy
-serverless build
+serverless client build
 serverless client deploy --no-confirm
 ```
 

@@ -1,25 +1,31 @@
 const { spawn } = require("child_process");
 
-class ServerlessBuildClientPlugin {
+class ServerlessClientBuildPlugin {
   constructor(serverless, options) {
     this.serverless = serverless;
     this.options = options;
 
     this.commands = {
-      build: {
+      client: {
         usage: "A plugin used to build front end applications",
-        lifecycleEvents: ["client"]
+        lifecycleEvents: ["build"],
+        commands: {
+          build: {
+            usage: "Build the client",
+            lifecycleEvents: ["build"]
+          }
+        }
       }
     };
 
     this.hooks = {
-      "before:build:client": this.beforeBuildClient.bind(this),
-      "build:client": this.buildClient.bind(this),
-      "after:build:client": this.afterBuildClient.bind(this)
+      "before:client:build:build": this.beforeClientBuild.bind(this),
+      "client:build:build": this.clientBuild.bind(this),
+      "after:client:build:build": this.afterClientBuild.bind(this)
     };
   }
 
-  beforeBuildClient() {
+  beforeClientBuild() {
     this.serverless.cli.log("Setting the environment variables");
     const environment = this.serverless.service.provider.environment;
 
@@ -37,16 +43,16 @@ class ServerlessBuildClientPlugin {
     });
   }
 
-  buildClient() {
+  clientBuild() {
     this.serverless.cli.log("Building the client");
-    return new Promise(this._buildClient.bind(this));
+    return new Promise(this._clientBuild.bind(this));
   }
 
-  afterBuildClient() {
+  afterClientBuild() {
     this.serverless.cli.log("Successfully built the client");
   }
 
-  _buildClient(resolve, reject) {
+  _clientBuild(resolve, reject) {
     const build = spawn("yarn", ["build"]);
     let err;
 
@@ -60,4 +66,4 @@ class ServerlessBuildClientPlugin {
   }
 }
 
-module.exports = ServerlessBuildClientPlugin;
+module.exports = ServerlessClientBuildPlugin;
