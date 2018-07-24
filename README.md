@@ -16,7 +16,7 @@ Plugins such as [`serverless-finch`](https://github.com/fernando-mc/serverless-f
 First, install the package to your dev dependencies
 
 ```
-yarn add --dev serverless-build-client
+$ yarn add --dev serverless-build-client
 ```
 
 Then add the plugin to your `serverless.yml` file
@@ -40,6 +40,29 @@ serverless client build
 
 This will add all of the environment variables in your `serverless.yml` file to `process.env`, and then it will execute `yarn build` to build the frontend
 
+### Options
+
+#### `--packager`, `-p`
+
+The packager that should be used to build the client. Valid options are `yarn` and `npm`. Default value is `yarn`
+
+##### Example
+
+```
+$ serverless client build --packager yarn
+```
+
+#### `--command`, `-c`
+
+The command that will build the client. Default value is `build`
+
+##### Examples
+
+```
+$ serverless client build --packager yarn --command build
+$ serverless client build --packager npm --command "run build"
+```
+
 ## Example
 
 Let's say you have two separate Serverless Framework projects: one for the frontend, and one for the backend. When you deploy the backend service, a `ServiceEndpoint` is automatically outputted in the CloudFormation stack.
@@ -60,9 +83,9 @@ provider:
 To deploy your front end, you need to run a series of commands (in this example, I am using [`serverless-finch`](https://github.com/fernando-mc/serverless-finch))
 
 ```
-serverless deploy
-serverless client build
-serverless client deploy --no-confirm
+$ serverless deploy
+$ serverless client build
+$ serverless client deploy --no-confirm
 ```
 
 These commands will first deploy your application to AWS. Then it will build the front end with the environment variable defined above. Then it will upload the built website to S3.

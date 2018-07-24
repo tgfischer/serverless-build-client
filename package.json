@@ -1,6 +1,6 @@
 {
   "name": "serverless-build-client",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A Serverless Framework plugin used to build front end applications",
   "main": "src/index.js",
   "repository": {
@@ -22,5 +22,8 @@
     "jest": "^23.2.0",
     "prettier": "^1.13.5",
     "serverless": "^1.27.3"
+  },
+  "dependencies": {
+    "cross-spawn": "^6.0.5"
   }
 }

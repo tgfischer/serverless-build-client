@@ -1,4 +1,6 @@
-const { spawn } = require("child_process");
+const { spawn } = require("cross-spawn");
+
+const constants = require("./constants");
 
 class ServerlessClientBuildPlugin {
   constructor(serverless, options) {
@@ -12,7 +14,19 @@ class ServerlessClientBuildPlugin {
         commands: {
           build: {
             usage: "Build the client",
-            lifecycleEvents: ["build"]
+            lifecycleEvents: ["build"],
+            options: {
+              packager: {
+                usage: "The packager that will be used to build the client",
+                shortcut: "p",
+                default: "yarn"
+              },
+              command: {
+                usage: "The command that will be used to build the client",
+                shortcut: "c",
+                default: "build"
+              }
+            }
           }
         }
       }
@@ -53,16 +67,39 @@ class ServerlessClientBuildPlugin {
   }
 
   _clientBuild(resolve, reject) {
-    const build = spawn("yarn", ["build"]);
-    let err;
+    if (!constants.packagers.includes(this.options.packager)) {
+      return reject(
+        new this.serverless.classes.Error(
+          `Invalid packager. Expected one of ${constants.packagers}`
+        )
+      );
+    }
 
-    build.stdout.on("data", data =>
-      this.serverless.cli.log(data.toString().trim())
-    );
-    build.stderr.on("data", data => {
-      err = new this.serverless.classes.Error(data.toString().trim());
+    const build = spawn(this.options.packager, this.options.command.split(" "));
+
+    build.stdout.on("data", this._onStdout.bind(this));
+    build.stderr.on("data", this._onStderr.bind(this));
+    build.on("error", this._onError.bind(this));
+    build.on("close", code => {
+      if (code === 0) {
+        return resolve();
+      }
+
+      return reject(this.error);
     });
-    build.on("close", code => (code === 0 ? resolve() : reject(err)));
+  }
+
+  _onStdout(data) {
+    return this.serverless.cli.log(data.toString().trim());
+  }
+
+  _onStderr(data) {
+    this.error = new this.serverless.classes.Error(data.toString().trim());
+    return this.serverless.cli.log(data.toString().trim());
+  }
+
+  _onError(err) {
+    this.error = new this.serverless.classes.Error(err);
   }
 }
 

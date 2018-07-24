@@ -1,7 +1,9 @@
-const ServerlessClientBuildPlugin = require("../index");
-const childProcess = require("child_process");
+const childProcess = require("cross-spawn");
 
-jest.mock("child_process", () => ({
+const ServerlessClientBuildPlugin = require("../index");
+const constants = require("../constants");
+
+jest.mock("cross-spawn", () => ({
   spawn: jest.fn(() => ({
     stdout: {
       on: jest.fn()
@@ -16,7 +18,8 @@ jest.mock("child_process", () => ({
 describe("ServerlessClientBuildPlugin tests", () => {
   const env = process.env;
   const options = {
-    foo: "bar"
+    packager: "yarn",
+    command: "build"
   };
 
   beforeEach(() => {
@@ -41,7 +44,19 @@ describe("ServerlessClientBuildPlugin tests", () => {
         commands: {
           build: {
             usage: "Build the client",
-            lifecycleEvents: ["build"]
+            lifecycleEvents: ["build"],
+            options: {
+              packager: {
+                usage: "The packager that will be used to build the client",
+                shortcut: "p",
+                default: "yarn"
+              },
+              command: {
+                usage: "The command that will be used to build the client",
+                shortcut: "c",
+                default: "build"
+              }
+            }
           }
         }
       }
@@ -129,6 +144,7 @@ describe("ServerlessClientBuildPlugin tests", () => {
     const reject = jest.fn();
     const stdout = jest.fn((event, f) => f("some stdout"));
     const stderr = jest.fn((event, f) => f("some stderr"));
+    const error = "error";
     const serverless = {
       cli: {
         log: jest.fn()
@@ -151,6 +167,72 @@ describe("ServerlessClientBuildPlugin tests", () => {
       );
     });
 
+    it("should throw if packager is invalid", () => {
+      const on = jest.fn((event, f) => f(0));
+      childProcess.spawn.mockImplementation(() => ({
+        stdout: {
+          on: stdout
+        },
+        stderr: {
+          on: stderr
+        },
+        on
+      }));
+
+      const plugin = new ServerlessClientBuildPlugin(serverless, {
+        packager: "hello",
+        command: "build"
+      });
+      plugin._onStdout = jest.fn();
+      plugin._onStderr = jest.fn();
+      plugin._onError = jest.fn();
+      plugin._clientBuild(resolve, reject);
+
+      expect(childProcess.spawn).not.toHaveBeenCalled();
+      expect(stdout).not.toHaveBeenCalled();
+      expect(stderr).not.toHaveBeenCalled();
+      expect(on).not.toHaveBeenCalled();
+      expect(resolve).not.toHaveBeenCalled();
+      expect(reject).toHaveBeenCalledWith(
+        new Error(`Invalid packager. Expected one of ${constants.packagers}`)
+      );
+    });
+
+    it.each([[constants.packagers[0]], [constants.packagers[1]]])(
+      "should build with %s packager",
+      packager => {
+        const on = jest.fn((event, f) => f(0));
+        childProcess.spawn.mockImplementation(() => ({
+          stdout: {
+            on: stdout
+          },
+          stderr: {
+            on: stderr
+          },
+          on
+        }));
+
+        const plugin = new ServerlessClientBuildPlugin(serverless, {
+          packager,
+          command: "build"
+        });
+        plugin._onStdout = jest.fn();
+        plugin._onStderr = jest.fn();
+        plugin._onError = jest.fn();
+        plugin._clientBuild(resolve, reject);
+
+        expect(childProcess.spawn).toHaveBeenCalledWith(packager, ["build"]);
+        expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
+        expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
+        expect(on.mock.calls).toEqual([
+          ["error", expect.any(Function)],
+          ["close", expect.any(Function)]
+        ]);
+        expect(resolve).toHaveBeenCalled();
+        expect(reject).not.toHaveBeenCalled();
+      }
+    );
+
     it("should resolve with exist code 0", () => {
       const on = jest.fn((event, f) => f(0));
       childProcess.spawn.mockImplementation(() => ({
@@ -164,19 +246,23 @@ describe("ServerlessClientBuildPlugin tests", () => {
       }));
 
       const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin._onStdout = jest.fn();
+      plugin._onStderr = jest.fn();
+      plugin._onError = jest.fn();
       plugin._clientBuild(resolve, reject);
 
-      expect(serverless.cli.log).toHaveBeenCalledWith("some stdout");
-      expect(serverless.classes.Error).toHaveBeenCalledWith("some stderr");
       expect(childProcess.spawn).toHaveBeenCalledWith("yarn", ["build"]);
       expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
       expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
-      expect(on).toHaveBeenCalledWith("close", expect.any(Function));
+      expect(on.mock.calls).toEqual([
+        ["error", expect.any(Function)],
+        ["close", expect.any(Function)]
+      ]);
       expect(resolve).toHaveBeenCalled();
       expect(reject).not.toHaveBeenCalled();
     });
 
-    it("should reject with exit code 1", () => {
+    it("should resolve with exist code 1", () => {
       const on = jest.fn((event, f) => f(1));
       childProcess.spawn.mockImplementation(() => ({
         stdout: {
@@ -189,16 +275,39 @@ describe("ServerlessClientBuildPlugin tests", () => {
       }));
 
       const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin._onStdout = jest.fn();
+      plugin._onStderr = jest.fn();
+      plugin._onError = jest.fn();
       plugin._clientBuild(resolve, reject);
 
-      expect(serverless.cli.log).toHaveBeenCalledWith("some stdout");
-      expect(serverless.classes.Error).toHaveBeenCalledWith("some stderr");
       expect(childProcess.spawn).toHaveBeenCalledWith("yarn", ["build"]);
       expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
       expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
-      expect(on).toHaveBeenCalledWith("close", expect.any(Function));
+      expect(on.mock.calls).toEqual([
+        ["error", expect.any(Function)],
+        ["close", expect.any(Function)]
+      ]);
       expect(resolve).not.toHaveBeenCalled();
-      expect(reject).toHaveBeenCalledWith(new Error("some stderr"));
+      expect(reject).toHaveBeenCalled();
+    });
+
+    it("should log the stdout", () => {
+      const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin._onStdout(new Buffer(" hello "));
+      expect(serverless.cli.log).toHaveBeenCalledWith("hello");
+    });
+
+    it("should log the stderr", () => {
+      const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin._onStderr(new Buffer(` ${error} `));
+      expect(plugin.error).toEqual(new Error(error));
+      expect(serverless.cli.log).toHaveBeenCalledWith(error);
+    });
+
+    it("should set the error", () => {
+      const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin._onError(error);
+      expect(plugin.error).toEqual(new Error(error));
     });
   });
 });
