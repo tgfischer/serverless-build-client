@@ -1,6 +1,6 @@
 {
   "name": "serverless-build-client",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A Serverless Framework plugin used to build front end applications",
   "main": "src/index.js",
   "repository": {
@@ -14,6 +14,16 @@
   },
   "author": "Tom Fischer",
   "license": "MIT",
+  "keywords": [
+    "serverless",
+    "framework",
+    "plugin",
+    "build",
+    "client",
+    "frontend",
+    "environment",
+    "variables"
+  ],
   "devDependencies": {
     "coveralls": "^3.0.2",
     "eslint": "^4.19.1",
