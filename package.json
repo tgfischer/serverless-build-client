@@ -26,12 +26,12 @@
   ],
   "devDependencies": {
     "coveralls": "^3.0.2",
-    "eslint": "^4.19.1",
-    "eslint-config-prettier": "^2.9.0",
-    "eslint-plugin-prettier": "^2.6.0",
-    "jest": "^23.2.0",
-    "prettier": "^1.13.5",
-    "serverless": "^1.27.3"
+    "eslint": "^5.9.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "jest": "^23.6.0",
+    "prettier": "^1.15.2",
+    "serverless": "^1.33.1"
   },
   "dependencies": {
     "cross-spawn": "^6.0.5"
