@@ -1,6 +1,6 @@
 {
   "name": "serverless-build-client",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "A Serverless Framework plugin used to build front end applications",
   "main": "src/index.js",
   "repository": {
@@ -26,12 +26,12 @@
   ],
   "devDependencies": {
     "coveralls": "^3.0.3",
-    "eslint": "^5.15.2",
-    "eslint-config-prettier": "^4.1.0",
-    "eslint-plugin-prettier": "^3.0.1",
-    "jest": "^24.5.0",
-    "prettier": "^1.16.4",
-    "serverless": "^1.39.0"
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "jest": "^24.8.0",
+    "prettier": "^1.17.1",
+    "serverless": "^1.44.1"
   },
   "dependencies": {
     "cross-spawn": "^6.0.5"
