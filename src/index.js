@@ -67,15 +67,19 @@ class ServerlessClientBuildPlugin {
   }
 
   _clientBuild(resolve, reject) {
-    if (!constants.packagers.includes(this.options.packager)) {
+    const packagers = Object.keys(constants.packagers);
+    if (!packagers.includes(this.options.packager)) {
       return reject(
         new this.serverless.classes.Error(
-          `Invalid packager. Expected one of ${constants.packagers}`
+          `Invalid packager. Expected one of ${packagers}`
         )
       );
     }
 
-    const build = spawn(this.options.packager, this.options.command.split(" "));
+    const build = spawn(
+      constants.packagers[this.options.packager],
+      this.options.command.split(" ")
+    );
 
     build.stdout.on("data", this._onStdout.bind(this));
     build.stderr.on("data", this._onStderr.bind(this));

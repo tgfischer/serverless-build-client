@@ -194,11 +194,15 @@ describe("ServerlessClientBuildPlugin tests", () => {
       expect(on).not.toHaveBeenCalled();
       expect(resolve).not.toHaveBeenCalled();
       expect(reject).toHaveBeenCalledWith(
-        new Error(`Invalid packager. Expected one of ${constants.packagers}`)
+        new Error(
+          `Invalid packager. Expected one of ${Object.keys(
+            constants.packagers
+          )}`
+        )
       );
     });
 
-    it.each([[constants.packagers[0]], [constants.packagers[1]]])(
+    it.each([Object.keys(constants.packagers)])(
       "should build with %s packager",
       packager => {
         const on = jest.fn((event, f) => f(0));
@@ -221,7 +225,10 @@ describe("ServerlessClientBuildPlugin tests", () => {
         plugin._onError = jest.fn();
         plugin._clientBuild(resolve, reject);
 
-        expect(childProcess.spawn).toHaveBeenCalledWith(packager, ["build"]);
+        expect(childProcess.spawn).toHaveBeenCalledWith(
+          constants.packagers[packager],
+          ["build"]
+        );
         expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
         expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
         expect(on.mock.calls).toEqual([

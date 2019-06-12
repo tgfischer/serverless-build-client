@@ -1,1 +1,4 @@
-module.exports.packagers = ["yarn", "npm"];
+module.exports.packagers = {
+  yarn: "yarn",
+  npm: "npm run"
+};
