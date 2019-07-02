@@ -11,6 +11,12 @@ A Serverless Framework plugin for building the frontend with environment variabl
 
 Plugins such as [`serverless-finch`](https://github.com/fernando-mc/serverless-finch) make it easy to host static websites in S3. These websites usually need to be built before being uploaded. Without this plugin, environment variables defined in `serverless.yml` will not be included in the build.
 
+## Table of Contents
+* [Installation](#installation)
+* [Usage](#usage)
+  * [Options](#options)
+* [Example](#example)
+
 ## Installation
 
 First, install the package to your dev dependencies
@@ -42,21 +48,21 @@ This will add all of the environment variables in your `serverless.yml` file to 
 
 ### Options
 
-#### `--packager`, `-p`
+#### `--packager`, `-p` <!-- omit in toc -->
 
 The packager that should be used to build the client. Valid options are `yarn` and `npm`. Default value is `yarn`
 
-##### Example
+##### Example <!-- omit in toc -->
 
 ```
 $ serverless client build --packager yarn
 ```
 
-#### `--command`, `-c`
+#### `--command`, `-c` <!-- omit in toc -->
 
 The command that will build the client. Default value is `build`
 
-##### Examples
+##### Examples <!-- omit in toc -->
 
 ```
 $ serverless client build --packager yarn --command build
