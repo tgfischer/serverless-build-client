@@ -1,9 +1,9 @@
 # Serverless Build Client
 
-[![npm](https://img.shields.io/npm/v/serverless-build-client.svg)](https://www.npmjs.com/package/serverless-build-client)
-[![CircleCI](https://img.shields.io/circleci/project/github/tgfischer/serverless-build-client.svg)](https://circleci.com/gh/tgfischer/serverless-build-client)
-[![GitHub license](https://img.shields.io/github/license/tgfischer/serverless-build-client.svg)](https://github.com/tgfischer/serverless-build-client/blob/master/LICENSE)
-[![Coverage Status](https://coveralls.io/repos/github/tgfischer/serverless-build-client/badge.svg?branch=master)](https://coveralls.io/github/tgfischer/serverless-build-client?branch=master)
+[![npm](https://img.shields.io/npm/v/serverless-build-client)](https://www.npmjs.com/package/serverless-build-client)
+[![CircleCI](https://img.shields.io/circleci/build/github/tgfischer/serverless-build-client)](https://circleci.com/gh/tgfischer/serverless-build-client)
+[![GitHub license](https://img.shields.io/github/license/tgfischer/serverless-build-client)](https://github.com/tgfischer/serverless-build-client/blob/master/LICENSE)
+[![Coverage Status](https://coveralls.io/repos/github/tgfischer/serverless-build-client/badge?branch=master)](https://coveralls.io/github/tgfischer/serverless-build-client?branch=master)
 
 A Serverless Framework plugin for building the frontend with environment variables defined in `serverless.yml`
 
@@ -12,10 +12,11 @@ A Serverless Framework plugin for building the frontend with environment variabl
 Plugins such as [`serverless-finch`](https://github.com/fernando-mc/serverless-finch) make it easy to host static websites in S3. These websites usually need to be built before being uploaded. Without this plugin, environment variables defined in `serverless.yml` will not be included in the build.
 
 ## Table of Contents
-* [Installation](#installation)
-* [Usage](#usage)
-  * [Options](#options)
-* [Example](#example)
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Options](#options)
+- [Example](#example)
 
 ## Installation
 
