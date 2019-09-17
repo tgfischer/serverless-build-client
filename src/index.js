@@ -18,13 +18,11 @@ class ServerlessClientBuildPlugin {
             options: {
               packager: {
                 usage: "The packager that will be used to build the client",
-                shortcut: "p",
-                default: "yarn"
+                shortcut: "p"
               },
               command: {
                 usage: "The command that will be used to build the client",
-                shortcut: "c",
-                default: "build"
+                shortcut: "c"
               },
               cwd: {
                 usage: "The directory that will be used to run the packager",
@@ -72,7 +70,10 @@ class ServerlessClientBuildPlugin {
 
   _clientBuild(resolve, reject) {
     const packagers = Object.keys(constants.packagers);
-    if (!packagers.includes(this.options.packager)) {
+    const packager = this.options.packager || constants.defaults.packager;
+    const command = this.options.command || constants.defaults.command[packager];
+
+    if (!packagers.includes(packager)) {
       return reject(
         new this.serverless.classes.Error(
           `Invalid packager. Expected one of ${packagers}`
@@ -85,8 +86,8 @@ class ServerlessClientBuildPlugin {
     };
 
     const build = spawn(
-      constants.packagers[this.options.packager],
-      this.options.command.split(" "),
+      constants.packagers[packager],
+      command.split(" "),
       buildOptions
     );
 
