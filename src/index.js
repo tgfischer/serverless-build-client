@@ -25,6 +25,10 @@ class ServerlessClientBuildPlugin {
                 usage: "The command that will be used to build the client",
                 shortcut: "c",
                 default: "build"
+              },
+              cwd: {
+                usage: "The directory that will be used to run the packager",
+                shortcut: "d"
               }
             }
           }
@@ -76,9 +80,14 @@ class ServerlessClientBuildPlugin {
       );
     }
 
+    const buildOptions = {
+      cwd: this.options.cwd
+    };
+
     const build = spawn(
       constants.packagers[this.options.packager],
-      this.options.command.split(" ")
+      this.options.command.split(" "),
+      buildOptions
     );
 
     build.stdout.on("data", this._onStdout.bind(this));

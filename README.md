@@ -70,6 +70,16 @@ $ serverless client build --packager yarn --command build
 $ serverless client build --packager npm --command "run build"
 ```
 
+#### `--cwd`, `-d` <!-- omit in toc -->
+
+The directory that will be used to run the packager. Default value is the current folder. This option is intended for use when the client package.json is in a subfolder or alternate folder.
+
+##### Example <!-- omit in toc -->
+
+```
+$ serverless client build --packager npm --command "run build" --cwd client
+```
+
 ## Example
 
 Let's say you have two separate Serverless Framework projects: one for the frontend, and one for the backend. When you deploy the backend service, a `ServiceEndpoint` is automatically outputted in the CloudFormation stack.
