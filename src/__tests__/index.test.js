@@ -48,13 +48,11 @@ describe("ServerlessClientBuildPlugin tests", () => {
             options: {
               packager: {
                 usage: "The packager that will be used to build the client",
-                shortcut: "p",
-                default: "yarn"
+                shortcut: "p"
               },
               command: {
                 usage: "The command that will be used to build the client",
-                shortcut: "c",
-                default: "build"
+                shortcut: "c"
               },
               cwd: {
                 usage: "The directory that will be used to run the packager",
@@ -241,8 +239,39 @@ describe("ServerlessClientBuildPlugin tests", () => {
       expect(reject).not.toHaveBeenCalled();
     });
 
-    it.each([Object.keys(constants.packagers)])(
-      "should build with %s packager",
+    it("should build with default packager and default command", () => {
+      const on = jest.fn((event, f) => f(0));
+      childProcess.spawn.mockImplementation(() => ({
+        stdout: {
+          on: stdout
+        },
+        stderr: {
+          on: stderr
+        },
+        on
+      }));
+
+      const plugin = new ServerlessClientBuildPlugin(serverless, {});
+      plugin._onStdout = jest.fn();
+      plugin._onStderr = jest.fn();
+      plugin._onError = jest.fn();
+      plugin._clientBuild(resolve, reject);
+
+      expect(childProcess.spawn).toHaveBeenCalledWith("yarn", ["build"], {
+        cwd: undefined
+      });
+      expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
+      expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
+      expect(on.mock.calls).toEqual([
+        ["error", expect.any(Function)],
+        ["close", expect.any(Function)]
+      ]);
+      expect(resolve).toHaveBeenCalled();
+      expect(reject).not.toHaveBeenCalled();
+    });
+
+    it.each(Object.keys(constants.packagers))(
+      "should build with %s packager and custom command",
       packager => {
         const on = jest.fn((event, f) => f(0));
         childProcess.spawn.mockImplementation(() => ({
@@ -282,7 +311,45 @@ describe("ServerlessClientBuildPlugin tests", () => {
       }
     );
 
-    it("should resolve with exist code 0", () => {
+    it.each(Object.keys(constants.packagers))(
+      "should build with %s packager and default command",
+      packager => {
+        const on = jest.fn((event, f) => f(0));
+        childProcess.spawn.mockImplementation(() => ({
+          stdout: {
+            on: stdout
+          },
+          stderr: {
+            on: stderr
+          },
+          on
+        }));
+
+        const plugin = new ServerlessClientBuildPlugin(serverless, {
+          packager
+        });
+        plugin._onStdout = jest.fn();
+        plugin._onStderr = jest.fn();
+        plugin._onError = jest.fn();
+        plugin._clientBuild(resolve, reject);
+
+        expect(childProcess.spawn).toHaveBeenCalledWith(
+          constants.packagers[packager],
+          constants.defaults.command[packager].split(" "),
+          { cwd: undefined }
+        );
+        expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
+        expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
+        expect(on.mock.calls).toEqual([
+          ["error", expect.any(Function)],
+          ["close", expect.any(Function)]
+        ]);
+        expect(resolve).toHaveBeenCalled();
+        expect(reject).not.toHaveBeenCalled();
+      }
+    );
+
+    it("should resolve with exit code 0", () => {
       const on = jest.fn((event, f) => f(0));
       childProcess.spawn.mockImplementation(() => ({
         stdout: {
@@ -313,7 +380,7 @@ describe("ServerlessClientBuildPlugin tests", () => {
       expect(reject).not.toHaveBeenCalled();
     });
 
-    it("should resolve with exist code 1", () => {
+    it("should resolve with exit code 1", () => {
       const on = jest.fn((event, f) => f(1));
       childProcess.spawn.mockImplementation(() => ({
         stdout: {
