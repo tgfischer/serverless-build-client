@@ -89,7 +89,10 @@ describe("ServerlessClientBuildPlugin tests", () => {
           log: jest.fn()
         },
         service: {
-          provider: {}
+          provider: {},
+          custom: {
+            buildClient: {}
+          }
         }
       };
       const plugin = new ServerlessClientBuildPlugin(serverless, options);
@@ -101,10 +104,48 @@ describe("ServerlessClientBuildPlugin tests", () => {
       expect(process.env).toEqual(env);
     });
 
-    it.each([
-      ["should process empty list of environment variables", {}],
+    it("should skip an empty list of environment variables", () => {
+      const serverless = {
+        cli: {
+          log: jest.fn()
+        },
+        service: {
+          provider: {
+            environment: {}
+          },
+          custom: {
+            buildClient: {
+              environment: {}
+            }
+          }
+        }
+      };
+      const plugin = new ServerlessClientBuildPlugin(serverless, options);
+      plugin.beforeClientBuild();
+
+      expect(plugin.serverless.cli.log).toHaveBeenCalledWith(
+        "No environment variables detected. Skipping step..."
+      );
+      expect(process.env).toEqual(env);
+    });
+
+    const tests = [
       [
-        "should process on environment variable",
+        "should process a provider environment variable",
+        {
+          HELLO_WORLD: "hello world"
+        },
+        {},
+        {
+          HELLO_WORLD: "hello world"
+        }
+      ],
+      [
+        "should process a custom environment variable",
+        {},
+        {
+          HELLO_WORLD: "hello world"
+        },
         {
           HELLO_WORLD: "hello world"
         }
@@ -112,33 +153,67 @@ describe("ServerlessClientBuildPlugin tests", () => {
       [
         "should process multiple environment variables",
         {
+          HELLO_WORLD: "hello world"
+        },
+        {
+          FOO_BAR: "foo bar"
+        },
+        {
           HELLO_WORLD: "hello world",
           FOO_BAR: "foo bar"
         }
-      ]
-    ])("%s", (message, environment) => {
-      const serverless = {
-        cli: {
-          log: jest.fn()
+      ],
+      [
+        "should override provider environment variables",
+        {
+          HELLO_WORLD: "hello world"
         },
-        service: {
-          provider: {
-            environment
-          }
+        {
+          HELLO_WORLD: "foo bar"
+        },
+        {
+          HELLO_WORLD: "foo bar"
         }
-      };
-      const plugin = new ServerlessClientBuildPlugin(serverless, options);
-      plugin.beforeClientBuild();
+      ]
+    ];
 
-      expect(plugin.serverless.cli.log.mock.calls).toEqual(
-        [["Setting the environment variables"]].concat(
-          Object.keys(environment).map(variable => [
-            `Setting ${variable} to ${environment[variable]}`
-          ])
-        )
-      );
-      expect(process.env).toEqual(expect.objectContaining(environment));
-    });
+    it.each(tests)(
+      "%s",
+      (message, providerEnvironment, customEnvironment, expectedResult) => {
+        const serverless = {
+          cli: {
+            log: jest.fn()
+          },
+          service: {
+            provider: {
+              environment: providerEnvironment
+            },
+            custom: {
+              buildClient: {
+                environment: customEnvironment
+              }
+            }
+          }
+        };
+        const plugin = new ServerlessClientBuildPlugin(serverless, options);
+        plugin.beforeClientBuild();
+
+        const environment = Object.assign(
+          {},
+          providerEnvironment,
+          customEnvironment
+        );
+
+        expect(plugin.serverless.cli.log.mock.calls).toEqual(
+          [["Setting the environment variables"]].concat(
+            Object.keys(environment).map(variable => [
+              `Setting ${variable} to ${environment[variable]}`
+            ])
+          )
+        );
+        expect(process.env).toEqual(expect.objectContaining(expectedResult));
+      }
+    );
   });
 
   describe("clientBuild tests", () => {
@@ -197,7 +272,7 @@ describe("ServerlessClientBuildPlugin tests", () => {
       expect(resolve).not.toHaveBeenCalled();
       expect(reject).toHaveBeenCalledWith(
         new Error(
-          `Invalid packager. Expected one of ${Object.keys(
+          `Invalid packager hello. Expected one of ${Object.keys(
             constants.packagers
           )}`
         )

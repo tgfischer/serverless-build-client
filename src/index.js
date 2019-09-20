@@ -5,6 +5,10 @@ const constants = require("./constants");
 class ServerlessClientBuildPlugin {
   constructor(serverless, options) {
     this.serverless = serverless;
+    const {
+      service: { custom: { buildClient: configuration = {} } = {} } = {}
+    } = this.serverless;
+    this.configuration = configuration;
     this.options = options;
 
     this.commands = {
@@ -43,9 +47,19 @@ class ServerlessClientBuildPlugin {
 
   beforeClientBuild() {
     this.serverless.cli.log("Setting the environment variables");
-    const environment = this.serverless.service.provider.environment;
+    const {
+      service: {
+        provider: { environment: providerEnvironment = {} }
+      }
+    } = this.serverless;
+    const { environment: customEnvironment = {} } = this.configuration;
+    const environment = Object.assign(
+      {},
+      providerEnvironment,
+      customEnvironment
+    );
 
-    if (!environment) {
+    if (!Object.keys(environment).length) {
       return this.serverless.cli.log(
         "No environment variables detected. Skipping step..."
       );
@@ -70,19 +84,34 @@ class ServerlessClientBuildPlugin {
 
   _clientBuild(resolve, reject) {
     const packagers = Object.keys(constants.packagers);
-    const packager = this.options.packager || constants.defaults.packager;
-    const command = this.options.command || constants.defaults.command[packager];
+    const {
+      packager: packagerOption,
+      command: commandOption,
+      cwd: cwdOption
+    } = this.options;
+    const {
+      packager: packagerConfiguration,
+      command: commandConfiguration,
+      cwd: cwdConfiguration
+    } = this.configuration;
+    const packager =
+      packagerOption || packagerConfiguration || constants.defaults.packager;
+    const command =
+      commandOption ||
+      commandConfiguration ||
+      constants.defaults.command[packager];
+    const cwd = cwdOption || cwdConfiguration;
 
     if (!packagers.includes(packager)) {
       return reject(
         new this.serverless.classes.Error(
-          `Invalid packager. Expected one of ${packagers}`
+          `Invalid packager ${packager}. Expected one of ${packagers}`
         )
       );
     }
 
     const buildOptions = {
-      cwd: this.options.cwd
+      cwd
     };
 
     const build = spawn(
