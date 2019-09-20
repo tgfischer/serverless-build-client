@@ -80,6 +80,39 @@ The directory that will be used to run the packager. Default value is the curren
 $ serverless client build --packager npm --command "run build" --cwd client
 ```
 
+### Configuration
+
+#### Options
+The above options may also be configured using custom configuration options in your `servless.yml` file
+
+```
+...
+
+custom:
+  buildClient:
+    packager: npm
+    command: run build
+    cwd: client
+```
+
+#### Environment variables
+Environment variables may be set for the entire provider:
+```
+provider:
+  environment:
+    REACT_APP_BACKEND_ENDPOINT: ${cf:<backend service name>.ServiceEndpoint}
+```
+
+Or they may be set specificly for this plugin:
+```
+custom:
+  buildClient:
+    environment:
+      REACT_APP_BACKEND_ENDPOINT: ${cf:<backend service name>.ServiceEndpoint}
+```
+
+The plugin will apply both provider environment variables and specific plugin environment variables. In the case of a conflict, the specific plugin environment variable will override the provider environment variable.
+
 ## Example
 
 Let's say you have two separate Serverless Framework projects: one for the frontend, and one for the backend. When you deploy the backend service, a `ServiceEndpoint` is automatically outputted in the CloudFormation stack.
@@ -93,6 +126,19 @@ provider:
   ...
   environment:
     REACT_APP_BACKEND_ENDPOINT: ${cf:<backend service name>.ServiceEndpoint}
+
+...
+```
+
+or
+
+```
+...
+
+custom:
+  buildClient:
+    environment:
+      REACT_APP_BACKEND_ENDPOINT: ${cf:<backend service name>.ServiceEndpoint}
 
 ...
 ```
