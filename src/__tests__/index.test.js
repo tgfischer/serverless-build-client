@@ -53,6 +53,10 @@ describe("ServerlessClientBuildPlugin tests", () => {
               command: {
                 usage: "The command that will be used to build the client",
                 shortcut: "c"
+              },
+              cwd: {
+                usage: "The directory that will be used to run the packager",
+                shortcut: "d"
               }
             }
           }
@@ -200,6 +204,41 @@ describe("ServerlessClientBuildPlugin tests", () => {
       );
     });
 
+    it("should build with cwd option", () => {
+      const on = jest.fn((event, f) => f(0));
+      childProcess.spawn.mockImplementation(() => ({
+        stdout: {
+          on: stdout
+        },
+        stderr: {
+          on: stderr
+        },
+        on
+      }));
+
+      const plugin = new ServerlessClientBuildPlugin(serverless, {
+        packager: "yarn",
+        command: "build",
+        cwd: "client"
+      });
+      plugin._onStdout = jest.fn();
+      plugin._onStderr = jest.fn();
+      plugin._onError = jest.fn();
+      plugin._clientBuild(resolve, reject);
+
+      expect(childProcess.spawn).toHaveBeenCalledWith("yarn", ["build"], {
+        cwd: "client"
+      });
+      expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
+      expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
+      expect(on.mock.calls).toEqual([
+        ["error", expect.any(Function)],
+        ["close", expect.any(Function)]
+      ]);
+      expect(resolve).toHaveBeenCalled();
+      expect(reject).not.toHaveBeenCalled();
+    });
+
     it("should build with default packager and default command", () => {
       const on = jest.fn((event, f) => f(0));
       childProcess.spawn.mockImplementation(() => ({
@@ -218,7 +257,9 @@ describe("ServerlessClientBuildPlugin tests", () => {
       plugin._onError = jest.fn();
       plugin._clientBuild(resolve, reject);
 
-      expect(childProcess.spawn).toHaveBeenCalledWith("yarn", ["build"]);
+      expect(childProcess.spawn).toHaveBeenCalledWith("yarn", ["build"], {
+        cwd: undefined
+      });
       expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
       expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
       expect(on.mock.calls).toEqual([
@@ -254,7 +295,10 @@ describe("ServerlessClientBuildPlugin tests", () => {
 
         expect(childProcess.spawn).toHaveBeenCalledWith(
           constants.packagers[packager],
-          ["build"]
+          ["build"],
+          {
+            cwd: undefined
+          }
         );
         expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
         expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
@@ -291,7 +335,8 @@ describe("ServerlessClientBuildPlugin tests", () => {
 
         expect(childProcess.spawn).toHaveBeenCalledWith(
           constants.packagers[packager],
-          constants.defaults.command[packager].split(" ")
+          constants.defaults.command[packager].split(" "),
+          { cwd: undefined }
         );
         expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
         expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
@@ -322,7 +367,9 @@ describe("ServerlessClientBuildPlugin tests", () => {
       plugin._onError = jest.fn();
       plugin._clientBuild(resolve, reject);
 
-      expect(childProcess.spawn).toHaveBeenCalledWith("yarn", ["build"]);
+      expect(childProcess.spawn).toHaveBeenCalledWith("yarn", ["build"], {
+        cwd: undefined
+      });
       expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
       expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
       expect(on.mock.calls).toEqual([
@@ -351,7 +398,9 @@ describe("ServerlessClientBuildPlugin tests", () => {
       plugin._onError = jest.fn();
       plugin._clientBuild(resolve, reject);
 
-      expect(childProcess.spawn).toHaveBeenCalledWith("yarn", ["build"]);
+      expect(childProcess.spawn).toHaveBeenCalledWith("yarn", ["build"], {
+        cwd: undefined
+      });
       expect(stdout).toHaveBeenCalledWith("data", expect.any(Function));
       expect(stderr).toHaveBeenCalledWith("data", expect.any(Function));
       expect(on.mock.calls).toEqual([
