@@ -80,6 +80,16 @@ The directory that will be used to run the packager. Default value is the curren
 $ serverless client build --packager npm --command "run build" --cwd client
 ```
 
+#### `--verbose`, `-v` <!-- omit in toc -->
+
+Flag that determines if we should print the environment variables to the console. Default value is `false`
+
+##### Example <!-- omit in toc -->
+
+```
+$ serverless client build --verbose
+```
+
 ### Configuration
 
 #### Options
@@ -93,6 +103,7 @@ custom:
     packager: npm
     command: run build
     cwd: client
+    verbose: true
 ```
 
 #### Environment variables

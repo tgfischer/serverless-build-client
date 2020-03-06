@@ -19,7 +19,8 @@ describe("ServerlessClientBuildPlugin tests", () => {
   const env = process.env;
   const options = {
     packager: "yarn",
-    command: "build"
+    command: "build",
+    verbose: true
   };
 
   beforeEach(() => {
@@ -57,6 +58,11 @@ describe("ServerlessClientBuildPlugin tests", () => {
               cwd: {
                 usage: "The directory that will be used to run the packager",
                 shortcut: "d"
+              },
+              verbose: {
+                usage:
+                  "Setting this command prints the environment variables in the console",
+                shortcut: "v"
               }
             }
           }
@@ -214,6 +220,36 @@ describe("ServerlessClientBuildPlugin tests", () => {
         expect(process.env).toEqual(expect.objectContaining(expectedResult));
       }
     );
+
+    it("should not log the environment variables", () => {
+      const environment = {
+        HELLO_WORLD: "hello world"
+      };
+      const serverless = {
+        cli: {
+          log: jest.fn()
+        },
+        service: {
+          provider: {
+            environment
+          },
+          custom: {
+            buildClient: {
+              environment: {}
+            }
+          }
+        }
+      };
+      const plugin = new ServerlessClientBuildPlugin(
+        serverless,
+        Object.assign({}, options, { verbose: false })
+      );
+      plugin.beforeClientBuild();
+
+      expect(plugin.serverless.cli.log.mock.calls).toEqual([
+        ["Setting the environment variables"]
+      ]);
+    });
   });
 
   describe("clientBuild tests", () => {
