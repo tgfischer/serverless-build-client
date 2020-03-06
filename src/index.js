@@ -31,6 +31,11 @@ class ServerlessClientBuildPlugin {
               cwd: {
                 usage: "The directory that will be used to run the packager",
                 shortcut: "d"
+              },
+              verbose: {
+                usage:
+                  "Setting this command prints the environment variables in the console",
+                shortcut: "v"
               }
             }
           }
@@ -52,12 +57,17 @@ class ServerlessClientBuildPlugin {
         provider: { environment: providerEnvironment = {} }
       }
     } = this.serverless;
-    const { environment: customEnvironment = {} } = this.configuration;
+    const { verbose: verboseOption } = this.options;
+    const {
+      environment: customEnvironment = {},
+      verbose: verboseConfiguration
+    } = this.configuration;
     const environment = Object.assign(
       {},
       providerEnvironment,
       customEnvironment
     );
+    const verbose = verboseOption || verboseConfiguration || false;
 
     if (!Object.keys(environment).length) {
       return this.serverless.cli.log(
@@ -66,9 +76,11 @@ class ServerlessClientBuildPlugin {
     }
 
     Object.keys(environment).forEach(variable => {
-      this.serverless.cli.log(
-        `Setting ${variable} to ${environment[variable]}`
-      );
+      if (verbose) {
+        this.serverless.cli.log(
+          `Setting ${variable} to ${environment[variable]}`
+        );
+      }
       process.env[variable] = environment[variable];
     });
   }
