@@ -5,11 +5,8 @@ const constants = require("./constants");
 class ServerlessClientBuildPlugin {
   constructor(serverless, options) {
     this.serverless = serverless;
-    const {
-      service: { custom: { buildClient: configuration = {} } = {} } = {}
-    } = this.serverless;
-    this.configuration = configuration;
     this.options = options;
+    this.configuration = {};
 
     this.commands = {
       client: {
@@ -52,12 +49,14 @@ class ServerlessClientBuildPlugin {
 
   beforeClientBuild() {
     this.serverless.cli.log("Setting the environment variables");
+    const { verbose: verboseOption } = this.options;
     const {
       service: {
-        provider: { environment: providerEnvironment = {} }
-      }
+        custom: { buildClient: configuration = {} },
+        provider: { environment: providerEnvironment }
+      } = {}
     } = this.serverless;
-    const { verbose: verboseOption } = this.options;
+    this.configuration = configuration;
     const {
       environment: customEnvironment = {},
       verbose: verboseConfiguration
