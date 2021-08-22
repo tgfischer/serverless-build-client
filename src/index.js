@@ -19,20 +19,24 @@ class ServerlessClientBuildPlugin {
             options: {
               packager: {
                 usage: "The packager that will be used to build the client",
-                shortcut: "p"
+                shortcut: "p",
+                type: "string"
               },
               command: {
                 usage: "The command that will be used to build the client",
-                shortcut: "c"
+                shortcut: "c",
+                type: "string"
               },
               cwd: {
                 usage: "The directory that will be used to run the packager",
-                shortcut: "d"
+                shortcut: "d",
+                type: "string"
               },
               verbose: {
                 usage:
                   "Setting this command prints the environment variables in the console",
-                shortcut: "v"
+                shortcut: "v",
+                type: "boolean"
               }
             }
           }
